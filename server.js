@@ -37,7 +37,19 @@ app.get("/", function(req, res){
         }
     });
 
-    
+    let examsByExamID = _.groupBy(examsFileArray, "ExamID");
+    _.forEach(examsByExamID, function(examSession){
+
+        let studentsAttributes = [];
+        _.forEach(examSession, function(Examinee){
+            if(Examinee.UserName.startsWith("s") && Examinee.EntranceTime != "NULL"){
+                studentsAttributes.push([Examinee.UserName, Examinee.IPAddress,
+                    hardcodedTimeToUnix(Examinee.EntranceTime), hardcodedTimeToUnix(Examinee.ExamEndTime),
+                    Examinee.FinalGrade, _.find(individualsFileArray, ["UserName", Examinee.UserName]).GPA]);
+            }
+        });
+        console.log(studentsAttributes);
+    });
 
 
 
@@ -52,3 +64,7 @@ app.listen(runningPort, function(){
     console.log("The app is now running on port " + runningPort);
     open("http://localhost:" + runningPort);
 });
+
+function hardcodedTimeToUnix(hardcodedTime){
+    return Math.round((new Date(hardcodedTime).getTime())/1000);
+}
