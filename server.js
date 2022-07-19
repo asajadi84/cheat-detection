@@ -116,27 +116,22 @@ app.get("/", function(req, res){
                 let similarEndTime = _.chain(studentsAttributes)
                 .find(o => o[0] == similarStudent)
                 .value()[3];
-                if(Math.abs(similarEndTime - studentsAttributes[i][3]) < 300){
+                if(Math.abs(similarEndTime - studentsAttributes[i][3]) < 600){
                     similarEndTime = true;
                 }
-
-                console.log(similarEndTime);
-                console.log(studentsAttributes[i][3]);
-                console.log(Math.abs(similarEndTime - studentsAttributes[i][3]));
+                console.log(similarEndTime)
             });
 
             studentCheatStatusLayer2.push([identicalIP, similarEndTime]);
         });
 
-        //console.log(studentsAttributes);
-        //console.log(studentsExamAnswers);
-        //console.log(studentCheatStatusLayer1);
-        //console.log(studentCheatStatusLayer2);
-        //console.log(studentsWithMostSimilaryAnswers);
 
-        // let temp1 = [3, 3, 2, 1, 0];
-        // let temp2 = [33, 33, 442, 13, 435435];
-        // console.log(collectionAbsoluteDifference(temp1, temp2));
+
+        // console.log(studentsAttributes);
+        // console.log(studentsExamAnswers);
+        // console.log(studentCheatStatusLayer1);
+        // console.log(studentCheatStatusLayer2);
+        // console.log(studentsWithMostSimilaryAnswers);
 
         console.log("-------------------------");
 
