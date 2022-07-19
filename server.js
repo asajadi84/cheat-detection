@@ -37,6 +37,8 @@ app.get("/", function(req, res){
         }
     });
 
+    let finalDataset = [];
+
     let examsByExamID = _.groupBy(examsFileArray, "ExamID");
     let examSessions = [];
     _.forEach(examsByExamID, function(examSession){
@@ -89,9 +91,9 @@ app.get("/", function(req, res){
 
         //Layer 2 cheat detection => test results similarity algorithm
         let studentCheatStatusLayer2 = [];
-        let studentsWithMostSimilaryAnswers = [];
+        let studentsWithMostSimilarAnswers = [];
         _.forEach(studentsAttributes, function(examinee, examineeIndex){
-            studentsWithMostSimilaryAnswers.push(
+            studentsWithMostSimilarAnswers.push(
                 _.chain(studentsExamAnswers)
                 .sortBy(row => collectionAbsoluteDifference(studentsExamAnswers[examineeIndex], row))
                 .filter(o => _.last(o) != studentsAttributes[examineeIndex][0])
@@ -100,7 +102,7 @@ app.get("/", function(req, res){
                 .value()
             );
         });
-        _.forEach(studentsWithMostSimilaryAnswers, function(similarAnswer, i){
+        _.forEach(studentsWithMostSimilarAnswers, function(similarAnswer, i){
 
             let identicalIP = false;
             let similarEndTime = false;
@@ -119,31 +121,39 @@ app.get("/", function(req, res){
                 if(Math.abs(similarEndTime - studentsAttributes[i][3]) < 600){
                     similarEndTime = true;
                 }
-                console.log(similarEndTime)
             });
 
             studentCheatStatusLayer2.push([identicalIP, similarEndTime]);
         });
 
+        //Layer 3 cheat detection => data mining methods (knn)
+        let studentCheatStatusLayer3 = [];
+        let currentExamDataset = examsByExamID[examSession[0].ExamID];
+        let currentExamDatasetKnn = [];
+        let plotData = [];
+        _.forEach(currentExamDataset, function(datasetItem){
+            if(datasetItem.UserName.startsWith("s") && datasetItem.FinalGrade != "0.00"){
+                currentExamDatasetKnn.push([
+                    datasetItem.UserName,
+                    datasetItem.FinalGrade,
+                    _.find(individualsFileArray, ["UserName", datasetItem.UserName]).GPA
+                ]);
+            }
+        });
 
+        _.forEach(studentsAttributes, function(examinee){
+            let accuracyPercentageVal = accuracyPercentage(knn([examinee[0], examinee[4], examinee[5]], currentExamDatasetKnn, 6), examinee[5]);
+            studentCheatStatusLayer3.push([
+                accuracyPercentageVal,
+                accuracyPercentageVal < 90
+            ]);
+        });
 
-        // console.log(studentsAttributes);
-        // console.log(studentsExamAnswers);
-        // console.log(studentCheatStatusLayer1);
-        // console.log(studentCheatStatusLayer2);
-        // console.log(studentsWithMostSimilaryAnswers);
-
-        console.log("-------------------------");
-
-
+        finalDataset.push([studentsAttributes, studentCheatStatusLayer1, studentCheatStatusLayer2,
+            studentsWithMostSimilarAnswers, studentCheatStatusLayer3, plotData]);
     });
 
-
-
-
-
-    //res.render("salam", {});
-    res.send("hello world");
+    res.render("index", {finalDataset: finalDataset});
 });
 
 const runningPort = 3000;
@@ -166,3 +176,31 @@ function collectionAbsoluteDifference(collection1, collection2){
     });
     return differenceValue / collectionSize;
 };
+
+function knn(testData, trainingDataset, k){
+    if(trainingDataset.length){
+        let prediction = _.chain(trainingDataset)
+        .map(row => [row[0], absDistance(row[1], testData[1]), row[2]])
+        .sortBy(row => row[1])
+        .slice(0, k)
+        .sumBy(o => o[2]*1)
+        .divide(k)
+        .value();
+        
+        return prediction;
+    }else{
+        return 0;
+    }
+}
+
+function absDistance(a, b){
+    return Math.abs(a-b);
+}
+
+function accuracyPercentage(a, b){
+    if(a>b){
+        return (b/a)*100;
+    }else{
+        return (a/b)*100;
+    }
+}

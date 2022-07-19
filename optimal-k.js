@@ -52,7 +52,16 @@ for(let k=1; k<testDataset.length; k++){
         });
     }
 }
+
+console.log("Table 1. Different accuracy rates based upon different values of k");
 console.table(optimalKTable, ["k", "user name", "user score", "user actual GPA", "user predicted GPA", "algorithm accuracy (%)"]);
+
+let sortedOptimalTable = _.chain(optimalKTable)
+.sortBy(o => o["algorithm accuracy (%)"])
+.reverse()
+.value();
+console.log("Table 2. Sorted version of Table 1 by k values");
+console.table(sortedOptimalTable, ["k", "user name", "user score", "user actual GPA", "user predicted GPA", "algorithm accuracy (%)"]);
 
 function knn(testData, trainingDataset, k){
     let prediction = _.chain(trainingDataset)
