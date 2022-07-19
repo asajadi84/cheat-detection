@@ -3,11 +3,12 @@ const express = require("express");
 const fs = require("fs");
 const open = require("open");
 const papa = require("papaparse");
-const tf = require("@tensorflow/tfjs");
 
 const app = express();
 app.set("view engine", "ejs");
 app.use("/", express.static("public"));
+
+let finalDataset = [];
 
 app.get("/", function(req, res){
 
@@ -36,8 +37,6 @@ app.get("/", function(req, res){
             individualsFileArray = results.data;
         }
     });
-
-    let finalDataset = [];
 
     let examsByExamID = _.groupBy(examsFileArray, "ExamID");
     let examSessions = [];
@@ -147,13 +146,77 @@ app.get("/", function(req, res){
                 accuracyPercentageVal,
                 accuracyPercentageVal < 90
             ]);
+
+            let currentStudentX = 0;
+            let currentStudentY = 0;
+            let predictedStudentX = 0;
+
+            let otherStudentsX = [];
+            let otherStudentsY = [];
+            let otherStudentsUserName = [];
+
+            _.forEach(studentsAttributes, function(innerExaminee){
+                if(innerExaminee[0] != examinee[0]){
+                    otherStudentsX.push(innerExaminee[5]);
+                    otherStudentsY.push(innerExaminee[4]);
+                    otherStudentsUserName.push(innerExaminee[0]);
+                }else{
+                    currentStudentX = innerExaminee[5];
+                    currentStudentY = innerExaminee[4];
+                    predictedStudentX = knn([innerExaminee[0], innerExaminee[4], innerExaminee[5]], currentExamDatasetKnn, 6);
+                }
+            });
+
+            plotData.push([
+                {
+                    x: otherStudentsX,
+                    y: otherStudentsY,
+                    mode: "markers+text",
+                    type: "scatter",
+                    name: "Other Students",
+                    text: otherStudentsUserName
+                },
+                {
+                    x: currentStudentX,
+                    y: currentStudentY,
+                    mode: "markers+text",
+                    type: "scatter",
+                    name: "This Student (Current)",
+                    text: "This Student (Current)"
+                },
+                {
+                    x: predictedStudentX,
+                    y: currentStudentY,
+                    mode: "markers+text",
+                    type: "scatter",
+                    name: "This Student (Prediction)",
+                    text: "This Student (Prediction)"
+                }
+            ]);
+
         });
 
         finalDataset.push([studentsAttributes, studentCheatStatusLayer1, studentCheatStatusLayer2,
             studentsWithMostSimilarAnswers, studentCheatStatusLayer3, plotData]);
     });
 
-    res.render("index", {finalDataset: finalDataset});
+    res.render("index", {examSessions: examSessions, finalDataset: finalDataset});
+});
+
+app.get("/plot", function(req, res){
+    if(!req.query.test || !req.query.student){
+        res.send("Error: Both test and student queries should be fulfilled.");
+    }else{
+        if(finalDataset[req.query.test][5][req.query.student]){
+            res.render("plot", {
+                i: req.query.test,
+                j: req.query.student,
+                plotData: finalDataset[req.query.test][5][req.query.student]
+            });
+        }else{
+            res.send("Error: Either test or student query is invalid.");
+        }
+    }
 });
 
 const runningPort = 3000;

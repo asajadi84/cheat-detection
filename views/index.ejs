@@ -1,1 +1,106 @@
-<%= finalDataset %>
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta charset="utf-8">
+    <title>FJ Cheat Detector</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="bootstrap.min.css">
+</head>
+
+<body>
+
+    <div class="container-fluid">
+        <% for(let i=0; i<finalDataset.length; i++){ %>
+
+            <h2><%= examSessions[i] %></h2>
+
+            <div class="table-responsive">
+                <table class="table">
+                    <tr class="table-header">
+                        <td rowspan="2">UserName</td>
+                        <td rowspan="2">Score</td>
+                        <td rowspan="2">GPA</td>
+                        <td colspan="3">Layer 1</td>
+                        <td colspan="3">Most Similar Answers</td>
+                        <td colspan="2">Layer 2</td>
+                        <td colspan="2">Layer 3</td>
+                        <td rowspan="2">Plot</td>
+                    </tr>
+                    <tr class="table-sub-header">
+                        <td>Shared IP Cheat Detected</td>
+                        <td>Exam Duration Cheat Detected</td>
+                        <td>Exam Delay Cheat Detected</td>
+                        <td>#1</td>
+                        <td>#2</td>
+                        <td>#3</td>
+                        <td>Identical IP Detected</td>
+                        <td>Similar End Time Detected</td>
+                        <td>GPA Prediction Accuracy</td>
+                        <td>Uncoordinated GPA Detected</td>
+                    </tr>
+
+                    <% for(let j=0; j<finalDataset[i].length; j++){ %>
+
+                        <tr>
+                            <td><%= finalDataset[i][0][j][0] %></td>
+                            <td><%= finalDataset[i][0][j][4] %></td>
+                            <td><%= finalDataset[i][0][j][5] %></td>
+
+                            <% if(finalDataset[i][1][j][0]){ %>
+                                <td class="table-danger">YES</td>
+                            <% }else{ %>
+                                <td class="table-success">NO</td>
+                            <% } %>
+                            <% if(finalDataset[i][1][j][1]){ %>
+                                <td class="table-danger">YES</td>
+                            <% }else{ %>
+                                <td class="table-success">NO</td>
+                            <% } %>
+                            <% if(finalDataset[i][1][j][2]){ %>
+                                <td class="table-danger">YES</td>
+                            <% }else{ %>
+                                <td class="table-success">NO</td>
+                            <% } %>
+
+                            <td><%= finalDataset[i][3][j][0] %></td>
+                            <td><%= finalDataset[i][3][j][1] %></td>
+                            <td><%= finalDataset[i][3][j][2] %></td>
+
+                            <% if(finalDataset[i][2][j][0]){ %>
+                                <td class="table-danger">YES</td>
+                            <% }else{ %>
+                                <td class="table-success">NO</td>
+                            <% } %>
+                            <% if(finalDataset[i][2][j][1]){ %>
+                                <td class="table-danger">YES</td>
+                            <% }else{ %>
+                                <td class="table-success">NO</td>
+                            <% } %>
+
+                            <td><%= finalDataset[i][4][j][0] %></td>
+                            <% if(finalDataset[i][4][j][1]){ %>
+                                <td class="table-danger">YES</td>
+                            <% }else{ %>
+                                <td class="table-success">NO</td>
+                            <% } %>
+
+                            <td><a href="/plot?test=<%= i %>&student=<%= j %>" class="btn btn-secondary" target="_blank">Scatter Plot</a></td>
+
+                        </tr>
+                        
+                    <% } %>
+
+
+                </table>
+            </div>
+
+            <hr>
+            
+        <% } %>
+    </div>
+
+</body>
+
+</html>

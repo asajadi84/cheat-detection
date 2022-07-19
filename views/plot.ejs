@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta charset="utf-8">
+    <title>Test <%= i %> Student <%= j %> Scatter Plot</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="bootstrap.min.css">
+    <script src="plotly-2.12.1.min.js"></script>
+</head>
+
+<body>
+
+    <div class="container-fluid">
+        <h2>Test <%= i %> Student <%= j %> Scatter Plot</h2>
+        <div id="scatter-plot"></div>
+    </div>
+
+    <script type="text/javascript">
+
+        var scatterPlotData = <%- JSON.stringify(plotData) %>;
+
+        var layout = {
+            xaxis: {
+                range: [0, 20]
+            },
+            yaxis: {
+                range: [0,20]
+            }
+        };
+
+        Plotly.newPlot(
+            document.getElementById("scatter-plot"), scatterPlotData, layout
+        );
+
+    </script>
+
+</body>
+
+</html>

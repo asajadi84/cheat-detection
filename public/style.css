@@ -1,0 +1,17 @@
+body {
+    background-color: #FEFBF6 !important;
+}
+
+.table-header {
+    background-color: #3D3C42;
+    color: #ffffff;
+}
+
+.table-sub-header {
+    background-color: #7F5283;
+    color: #ffffff;
+}
+
+.table-header td, .table-sub-header td {
+    border: 1px solid #ffffff;
+}
