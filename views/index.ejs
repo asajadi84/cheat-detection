@@ -12,93 +12,158 @@
 <body>
 
     <div class="container-fluid">
+
+        <div class="sessions-section">
+            <ul>
+                <% for(let i=0; i<examSessions.length; i++){ %>
+                <a href="#session-<%= i+1 %>"><li><%= examSessions[i] %></li></a>
+                <% } %>
+            </ul>
+        </div>
+
         <% for(let i=0; i<examSessions.length; i++){ %>
 
-            <h2><%= examSessions[i] %></h2>
+            <div class="result" id="session-<%= i+1 %>">
 
-            <div class="table-responsive">
-                <table class="table">
-                    <tr class="table-header">
-                        <td rowspan="2">UserName</td>
-                        <td rowspan="2">Score</td>
-                        <td rowspan="2">GPA</td>
-                        <td colspan="3">Layer 1</td>
-                        <td colspan="3">Most Similar Answers</td>
-                        <td colspan="2">Layer 2</td>
-                        <td colspan="2">Layer 3</td>
-                        <td rowspan="2">Plot</td>
-                    </tr>
-                    <tr class="table-sub-header">
-                        <td>Shared IP Cheat Detected</td>
-                        <td>Exam Duration Cheat Detected</td>
-                        <td>Exam Delay Cheat Detected</td>
-                        <td>#1</td>
-                        <td>#2</td>
-                        <td>#3</td>
-                        <td>Identical IP Detected</td>
-                        <td>Similar End Time Detected</td>
-                        <td>GPA Prediction Accuracy</td>
-                        <td>Uncoordinated GPA Detected</td>
-                    </tr>
+                <h2><%= examSessions[i] %></h2>
 
-                    <% for(let j=0; j<finalDataset[i][0].length; j++){ %>
-
-                        <tr>
-                            <td><%= finalDataset[i][0][j][0] %></td>
-                            <td><%= finalDataset[i][0][j][4] %></td>
-                            <td><%= finalDataset[i][0][j][5] %></td>
-
-                            <% if(finalDataset[i][1][j][0]){ %>
-                                <td class="table-danger">YES</td>
-                            <% }else{ %>
-                                <td class="table-success">NO</td>
-                            <% } %>
-                            <% if(finalDataset[i][1][j][1]){ %>
-                                <td class="table-danger">YES</td>
-                            <% }else{ %>
-                                <td class="table-success">NO</td>
-                            <% } %>
-                            <% if(finalDataset[i][1][j][2]){ %>
-                                <td class="table-danger">YES</td>
-                            <% }else{ %>
-                                <td class="table-success">NO</td>
-                            <% } %>
-
-                            <td><%= finalDataset[i][3][j][0] %></td>
-                            <td><%= finalDataset[i][3][j][1] %></td>
-                            <td><%= finalDataset[i][3][j][2] %></td>
-
-                            <% if(finalDataset[i][2][j][0]){ %>
-                                <td class="table-danger">YES</td>
-                            <% }else{ %>
-                                <td class="table-success">NO</td>
-                            <% } %>
-                            <% if(finalDataset[i][2][j][1]){ %>
-                                <td class="table-danger">YES</td>
-                            <% }else{ %>
-                                <td class="table-success">NO</td>
-                            <% } %>
-
-                            <td><%= finalDataset[i][4][j][0] %></td>
-                            <% if(finalDataset[i][4][j][1]){ %>
-                                <td class="table-danger">YES</td>
-                            <% }else{ %>
-                                <td class="table-success">NO</td>
-                            <% } %>
-
-                            <td><a href="/plot?test=<%= i %>&student=<%= j %>" class="btn btn-secondary" target="_blank">Scatter Plot</a></td>
-
+                <div class="table-responsive">
+                    <table class="table">
+                        <tr class="table-header">
+                            <td rowspan="2">UserName</td>
+                            <td rowspan="2">Score</td>
+                            <td rowspan="2">GPA</td>
+                            <td colspan="4">Layer 1</td>
+                            <td rowspan="2">Most Similar Answers</td>
+                            <td colspan="3">Layer 2</td>
+                            <td colspan="3">Layer 3 (KNN)</td>
+                            <td colspan="3">Layer 3 (ANN)</td>
+                            <td colspan="2">Cheat Result</td>
+                            <td rowspan="2">Plot</td>
                         </tr>
-                        
-                    <% } %>
+                        <tr class="table-sub-header">
+                            <td>Shared IP Cheat Detected</td>
+                            <td>Exam Duration Cheat Detected</td>
+                            <td>Exam Delay Cheat Detected</td>
+                            <td>Layer Score (Max: 24)</td>
+                            <td>Identical IP Detected</td>
+                            <td>Similar End Time Detected</td>
+                            <td>Layer Score (Max: 16)</td>
+                            <td>GPA Prediction Accuracy</td>
+                            <td>Uncoordinated GPA Detected</td>
+                            <td>Layer Score (Max: 30)</td>
+                            <td>GPA Prediction Accuracy</td>
+                            <td>Uncoordinated GPA Detected</td>
+                            <td>Layer Score (Max: 30)</td>
+                            <td>Cheat Score (Max: 100)</td>
+                            <td>Cheat Detected</td>
+                        </tr>
+    
+                        <% for(let j=0; j<finalDataset[i][0].length; j++){ %>
+    
+                            <tr>
+                                <td><%= finalDataset[i][0][j][0] %></td>
+                                <td><%= finalDataset[i][0][j][4] %></td>
+                                <td><%= finalDataset[i][0][j][5] %></td>
+    
+                                <% if(finalDataset[i][1][j][0]){ %>
+                                    <td class="table-danger">YES</td>
+                                <% }else{ %>
+                                    <td class="table-success">NO</td>
+                                <% } %>
+                                <% if(finalDataset[i][1][j][1]){ %>
+                                    <td class="table-danger">YES</td>
+                                <% }else{ %>
+                                    <td class="table-success">NO</td>
+                                <% } %>
+                                <% if(finalDataset[i][1][j][2]){ %>
+                                    <td class="table-danger">YES</td>
+                                <% }else{ %>
+                                    <td class="table-success">NO</td>
+                                <% } %>
+                                <td><%= (finalDataset[i][1][j][0]? 8:0)+(finalDataset[i][1][j][1]? 8:0)+(finalDataset[i][1][j][2]? 8:0) %></td>
+    
+                                <td>
+                                    <%= finalDataset[i][3][j][0] %>
+                                    <%= finalDataset[i][3][j][1] %>
+                                    <%= finalDataset[i][3][j][2] %>
+                                </td>
+    
+                                <% if(finalDataset[i][2][j][0]){ %>
+                                    <td class="table-danger">YES</td>
+                                <% }else{ %>
+                                    <td class="table-success">NO</td>
+                                <% } %>
+                                <% if(finalDataset[i][2][j][1]){ %>
+                                    <td class="table-danger">YES</td>
+                                <% }else{ %>
+                                    <td class="table-success">NO</td>
+                                <% } %>
+                                <td><%= (finalDataset[i][2][j][0]? 8:0)+(finalDataset[i][2][j][1]? 8:0) %></td>
+    
+                                <td><%= finalDataset[i][4][j][0] %></td>
+                                <% if(finalDataset[i][4][j][1]){ %>
+                                    <td class="table-danger">YES</td>
+                                <% }else{ %>
+                                    <td class="table-success">NO</td>
+                                <% } %>
+                                <td><%= (-0.3*finalDataset[i][4][j][0])+30 %></td>
+    
+                                <td><%= finalDataset[i][6][j][0] %></td>
+                                <% if(finalDataset[i][6][j][1]){ %>
+                                    <td class="table-danger">YES</td>
+                                <% }else{ %>
+                                    <td class="table-success">NO</td>
+                                <% } %>
+                                <td><%= (-0.3*finalDataset[i][6][j][0])+30 %></td>
+    
+                                <td><%= ((finalDataset[i][1][j][0]? 8:0)+(finalDataset[i][1][j][1]? 8:0)+(finalDataset[i][1][j][2]? 8:0))+((finalDataset[i][2][j][0]? 8:0)+(finalDataset[i][2][j][1]? 8:0))+((-0.3*finalDataset[i][4][j][0])+30)+((-0.3*finalDataset[i][6][j][0])+30) %></td>
+                                <% if(((finalDataset[i][1][j][0]? 8:0)+(finalDataset[i][1][j][1]? 8:0)+(finalDataset[i][1][j][2]? 8:0))+((finalDataset[i][2][j][0]? 8:0)+(finalDataset[i][2][j][1]? 8:0))+((-0.3*finalDataset[i][4][j][0])+30)+((-0.3*finalDataset[i][6][j][0])+30)>10){ %>
+                                    <td class="table-danger">YES</td>
+                                <% }else{ %>
+                                    <td class="table-success">NO</td>
+                                <% } %>
+    
+                                <td><a href="/plot?test=<%= i %>&student=<%= j %>" class="btn btn-secondary" target="_blank">Scatter Plot</a></td>
+    
+                            </tr>
+                            
+                        <% } %>
+    
+    
+                    </table>
+                </div>
 
-
-                </table>
             </div>
 
             <hr>
             
         <% } %>
+
+        <div class="page-nav-section">
+            <ul>
+                <a href="/?dataset=1"><li>1</li></a>
+                <a href="/?dataset=2"><li>2</li></a>
+                <a href="/?dataset=3"><li>3</li></a>
+                <a href="/?dataset=4"><li>4</li></a>
+                <a href="/?dataset=5"><li>5</li></a>
+                <a href="/?dataset=6"><li>6</li></a>
+                <a href="/?dataset=7"><li>7</li></a>
+                <a href="/?dataset=8"><li>8</li></a>
+                <a href="/?dataset=9"><li>9</li></a>
+                <a href="/?dataset=10"><li>10</li></a>
+                <a href="/?dataset=11"><li>11</li></a>
+                <a href="/?dataset=12"><li>12</li></a>
+                <a href="/?dataset=13"><li>13</li></a>
+                <a href="/?dataset=14"><li>14</li></a>
+                <a href="/?dataset=15"><li>15</li></a>
+                <a href="/?dataset=16"><li>16</li></a>
+                <a href="/?dataset=17"><li>17</li></a>
+                <a href="/?dataset=18"><li>18</li></a>
+                <a href="/?dataset=19"><li>19</li></a>
+                <a href="/?dataset=20"><li>20</li></a>
+            </ul>
+        </div>
     </div>
 
 </body>

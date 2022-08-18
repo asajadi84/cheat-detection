@@ -3,6 +3,7 @@ const express = require("express");
 const fs = require("fs");
 const open = require("open");
 const papa = require("papaparse");
+const Mind = require("node-mind");
 
 const app = express();
 app.set("view engine", "ejs");
@@ -12,9 +13,14 @@ let finalDataset = [];
 
 app.get("/", function(req, res){
 
-    const answersFile = fs.readFileSync(__dirname + "/dataset/answers.csv", {encoding: "utf-8"});
-    const examsFile = fs.readFileSync(__dirname + "/dataset/exams.csv", {encoding: "utf-8"});
-    const individualsFile = fs.readFileSync(__dirname + "/dataset/individuals.csv", {encoding: "utf-8"});
+    var datasetCode = "1";
+    if(req.query.dataset){
+        datasetCode = req.query.dataset;
+    }
+
+    const answersFile = fs.readFileSync(__dirname + "/datasets/dataset" + datasetCode + "/answers.csv", {encoding: "utf-8"});
+    const examsFile = fs.readFileSync(__dirname + "/datasets/dataset" + datasetCode + "/exams.csv", {encoding: "utf-8"});
+    const individualsFile = fs.readFileSync(__dirname + "/datasets/dataset" + datasetCode + "/individuals.csv", {encoding: "utf-8"});
 
     let answersFileArray;
     papa.parse(answersFile, {
@@ -83,7 +89,7 @@ app.get("/", function(req, res){
 
             let sharedIPCheatDetected = sharedIPCount > 1;
             let examDurationCheatDetected = examinee[3] < examEntranceMinTime + (maxDurationPossible / 4);
-            let examDelayCheatDetected = examinee[2] > examEntranceMinTime + 600;
+            let examDelayCheatDetected = examinee[2] > examEntranceMinTime + (maxDurationPossible / 20);
 
             studentCheatStatusLayer1.push([sharedIPCheatDetected, examDurationCheatDetected, examDelayCheatDetected]);
         });
@@ -196,8 +202,30 @@ app.get("/", function(req, res){
 
         });
 
+        //Layer 3 cheat detection => artificial neural network (ann)
+        let studentCheatStatusLayer3b = [];
+        let currentExamDatasetb = examsByExamID[examSession[0].ExamID];
+        let currentExamDatasetAnn = [];
+        _.forEach(currentExamDatasetb, function(datasetItem){
+            if(datasetItem.UserName.startsWith("s") && datasetItem.FinalGrade != "0.00"){
+                currentExamDatasetAnn.push({
+                    input: [dividedByTwenty(datasetItem.FinalGrade)],
+                    output: [dividedByTwenty(_.find(individualsFileArray, ["UserName", datasetItem.UserName]).GPA)]
+                });
+            }
+        });
+
+        _.forEach(studentsAttributes, function(examinee){
+            const mind = new Mind().learn(currentExamDatasetAnn).predict(examinee[5]);
+            let accuracyPercentageVal = accuracyPercentage(mind * 20, examinee[5]);
+            studentCheatStatusLayer3b.push([
+                accuracyPercentageVal,
+                accuracyPercentageVal < 75
+            ]);
+        });
+
         finalDataset.push([studentsAttributes, studentCheatStatusLayer1, studentCheatStatusLayer2,
-            studentsWithMostSimilarAnswers, studentCheatStatusLayer3, plotData]);
+            studentsWithMostSimilarAnswers, studentCheatStatusLayer3, plotData, studentCheatStatusLayer3b]);
     });
 
     res.render("index", {examSessions: examSessions, finalDataset: finalDataset});
@@ -222,7 +250,11 @@ app.get("/plot", function(req, res){
 const runningPort = 3000;
 app.listen(runningPort, function(){
     console.log("The app is now running on port " + runningPort);
-    open("http://localhost:" + runningPort);
+    let argv2 = "";
+    if(process.argv[2]){
+        argv2 = "/?dataset=" + process.argv[2];
+    }
+    open("http://localhost:" + runningPort + argv2);
 });
 
 function hardcodedTimeToUnix(hardcodedTime){
@@ -266,4 +298,8 @@ function accuracyPercentage(a, b){
     }else{
         return (a/b)*100;
     }
+}
+
+function dividedByTwenty(actualNumber){
+    return actualNumber/20;
 }

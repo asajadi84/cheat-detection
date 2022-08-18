@@ -15,3 +15,45 @@ body {
 .table-header td, .table-sub-header td {
     border: 1px solid #ffffff;
 }
+
+.page-nav-section {
+    position: fixed;
+    left: 20px;
+    bottom: 20px;
+    background-color: #7F5283;
+    padding: 8px;
+    border-radius: 8px;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+ul li {
+    float: left;
+    padding: 4px 8px;
+}
+
+ul li:hover {
+    background-color: #aa7bae;
+    border-radius: 4px;
+}
+
+ul a li, ul a li:hover {
+    text-decoration: none;
+    color: #ffffff;
+}
+
+.sessions-section {
+    position: fixed;
+    left: 0px;
+    top: 0px;
+    background-color: #3d3c42;
+    padding: 8px;
+}
+
+.result {
+    padding-top: 96px;
+}
