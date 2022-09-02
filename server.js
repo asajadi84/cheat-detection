@@ -4,6 +4,7 @@ const fs = require("fs");
 const open = require("open");
 const papa = require("papaparse");
 const Mind = require("node-mind");
+const logDir = __dirname + "/datasetlog";
 
 const app = express();
 app.set("view engine", "ejs");
@@ -52,7 +53,7 @@ app.get("/", function(req, res){
 
         let studentsAttributes = [];
         _.forEach(examSession, function(examinee){
-            if(examinee.UserName.startsWith("s") && examinee.EntranceTime != "NULL"){
+            if(examinee.UserName.startsWith("s") && examinee.EntranceTime != "NULL" && examinee.ExamEndTime != "NULL"){
                 studentsAttributes.push([examinee.UserName, examinee.IPAddress,
                     hardcodedTimeToUnix(examinee.EntranceTime), hardcodedTimeToUnix(examinee.ExamEndTime),
                     examinee.FinalGrade, _.find(individualsFileArray, ["UserName", examinee.UserName]).GPA]);
@@ -223,6 +224,8 @@ app.get("/", function(req, res){
                 accuracyPercentageVal < 75
             ]);
         });
+
+        fs.appendFile(logDir + "/studentattributes.log", studentsAttributes + "\n---------------------\n", { flag: "a" }, (err) => {});
 
         finalDataset.push([studentsAttributes, studentCheatStatusLayer1, studentCheatStatusLayer2,
             studentsWithMostSimilarAnswers, studentCheatStatusLayer3, plotData, studentCheatStatusLayer3b]);
