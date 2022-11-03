@@ -4,6 +4,7 @@ const fs = require("fs");
 const open = require("open");
 const papa = require("papaparse");
 const Mind = require("node-mind");
+const ml = require("machine_learning");
 const logDir = __dirname + "/datasetlog";
 
 const app = express();
@@ -132,8 +133,41 @@ app.get("/", function(req, res){
             studentCheatStatusLayer2.push([identicalIP, similarEndTime]);
         });
 
-        //Layer 3 cheat detection => data mining methods (knn)
+        //Layer 3 cheat detection => support vector machine (svm)
         let studentCheatStatusLayer3 = [];
+        let currentExamDatasetb = examsByExamID[examSession[0].ExamID];
+        let currentExamDatasetX = [];
+        let currentExamDatasetY = [];
+        _.forEach(currentExamDatasetb, function(datasetItem){
+            if(datasetItem.UserName.startsWith("s") && datasetItem.FinalGrade != "0.00"){
+                currentExamDatasetX.push([datasetItem.FinalGrade]);
+                currentExamDatasetY.push(_.find(individualsFileArray, ["UserName", datasetItem.UserName]).GPA);
+            }
+        });
+
+        _.forEach(studentsAttributes, function(examinee){
+
+            var svm = new ml.SVM({
+                x : currentExamDatasetX,
+                y : currentExamDatasetY
+            });
+
+            svm.train({
+                C : 1.1, // default : 1.0. C in SVM.
+                tol : 1e-5, // default : 1e-4. Higher tolerance --> Higher precision
+                max_passes : 20, // default : 20. Higher max_passes --> Higher precision
+                alpha_tol : 1e-5, // default : 1e-5. Higher alpha_tolerance --> Higher precision
+                kernel : { type: "polynomial", c: 1, d: 5}
+            });
+
+            studentCheatStatusLayer3.push([
+                svm.predict([examinee[5]]) == 1 ? 0 : 100,
+                svm.predict([examinee[5]]) == 1
+            ]);
+        });
+
+        //Layer 3 cheat detection => data mining methods (knn)
+        let studentCheatStatusLayer31 = [];
         let currentExamDataset = examsByExamID[examSession[0].ExamID];
         let currentExamDatasetKnn = [];
         let plotData = [];
@@ -149,7 +183,7 @@ app.get("/", function(req, res){
 
         _.forEach(studentsAttributes, function(examinee){
             let accuracyPercentageVal = accuracyPercentage(knn([examinee[0], examinee[4], examinee[5]], currentExamDatasetKnn, 6), examinee[5]);
-            studentCheatStatusLayer3.push([
+            studentCheatStatusLayer31.push([
                 accuracyPercentageVal,
                 accuracyPercentageVal < 90
             ]);
@@ -204,10 +238,10 @@ app.get("/", function(req, res){
         });
 
         //Layer 3 cheat detection => artificial neural network (ann)
-        let studentCheatStatusLayer3b = [];
-        let currentExamDatasetb = examsByExamID[examSession[0].ExamID];
+        let studentCheatStatusLayer32 = [];
+        let currentExamDatasetb3 = examsByExamID[examSession[0].ExamID];
         let currentExamDatasetAnn = [];
-        _.forEach(currentExamDatasetb, function(datasetItem){
+        _.forEach(currentExamDatasetb3, function(datasetItem){
             if(datasetItem.UserName.startsWith("s") && datasetItem.FinalGrade != "0.00"){
                 currentExamDatasetAnn.push({
                     input: [dividedByTwenty(datasetItem.FinalGrade)],
@@ -219,16 +253,16 @@ app.get("/", function(req, res){
         _.forEach(studentsAttributes, function(examinee){
             const mind = new Mind().learn(currentExamDatasetAnn).predict(examinee[5]);
             let accuracyPercentageVal = accuracyPercentage(mind * 20, examinee[5]);
-            studentCheatStatusLayer3b.push([
+            studentCheatStatusLayer32.push([
                 accuracyPercentageVal,
                 accuracyPercentageVal < 75
             ]);
         });
 
-        fs.appendFile(logDir + "/studentattributes.log", studentsAttributes + "\n---------------------\n", { flag: "a" }, (err) => {});
+        //fs.appendFile(logDir + "/studentattributes.log", studentsAttributes + "\n---------------------\n", { flag: "a" }, (err) => {});
 
         finalDataset.push([studentsAttributes, studentCheatStatusLayer1, studentCheatStatusLayer2,
-            studentsWithMostSimilarAnswers, studentCheatStatusLayer3, plotData, studentCheatStatusLayer3b]);
+            studentsWithMostSimilarAnswers, studentCheatStatusLayer3, studentCheatStatusLayer31, studentCheatStatusLayer32]);
     });
 
     res.render("index", {examSessions: examSessions, finalDataset: finalDataset});

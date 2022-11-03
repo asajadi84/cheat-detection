@@ -36,10 +36,10 @@
                             <td colspan="4">Layer 1</td>
                             <td rowspan="2">Most Similar Answers</td>
                             <td colspan="3">Layer 2</td>
+                            <td colspan="3">Layer 3 (SVM)</td>
                             <td colspan="3">Layer 3 (KNN)</td>
                             <td colspan="3">Layer 3 (ANN)</td>
                             <td colspan="2">Cheat Result</td>
-                            <td rowspan="2">Plot</td>
                         </tr>
                         <tr class="table-sub-header">
                             <td>Shared IP Cheat Detected</td>
@@ -51,10 +51,13 @@
                             <td>Layer Score (Max: 16)</td>
                             <td>GPA Prediction Accuracy</td>
                             <td>Uncoordinated GPA Detected</td>
-                            <td>Layer Score (Max: 30)</td>
+                            <td>Layer Score (Max: 10)</td>
                             <td>GPA Prediction Accuracy</td>
                             <td>Uncoordinated GPA Detected</td>
-                            <td>Layer Score (Max: 30)</td>
+                            <td>Layer Score (Max: 25)</td>
+                            <td>GPA Prediction Accuracy</td>
+                            <td>Uncoordinated GPA Detected</td>
+                            <td>Layer Score (Max: 25)</td>
                             <td>Cheat Score (Max: 100)</td>
                             <td>Cheat Detected</td>
                         </tr>
@@ -107,24 +110,30 @@
                                 <% }else{ %>
                                     <td class="table-success">NO</td>
                                 <% } %>
-                                <td><%= (-0.3*finalDataset[i][4][j][0])+30 %></td>
-    
+                                <td><%= (-0.1*finalDataset[i][4][j][0])+10 %></td>
+
+                                <td><%= finalDataset[i][5][j][0] %></td>
+                                <% if(finalDataset[i][5][j][1]){ %>
+                                    <td class="table-danger">YES</td>
+                                <% }else{ %>
+                                    <td class="table-success">NO</td>
+                                <% } %>
+                                <td><%= (-0.25*finalDataset[i][5][j][0])+25 %></td>
+
                                 <td><%= finalDataset[i][6][j][0] %></td>
                                 <% if(finalDataset[i][6][j][1]){ %>
                                     <td class="table-danger">YES</td>
                                 <% }else{ %>
                                     <td class="table-success">NO</td>
                                 <% } %>
-                                <td><%= (-0.3*finalDataset[i][6][j][0])+30 %></td>
+                                <td><%= (-0.25*finalDataset[i][6][j][0])+25 %></td>
     
-                                <td><%= ((finalDataset[i][1][j][0]? 8:0)+(finalDataset[i][1][j][1]? 8:0)+(finalDataset[i][1][j][2]? 8:0))+((finalDataset[i][2][j][0]? 8:0)+(finalDataset[i][2][j][1]? 8:0))+((-0.3*finalDataset[i][4][j][0])+30)+((-0.3*finalDataset[i][6][j][0])+30) %></td>
-                                <% if(((finalDataset[i][1][j][0]? 8:0)+(finalDataset[i][1][j][1]? 8:0)+(finalDataset[i][1][j][2]? 8:0))+((finalDataset[i][2][j][0]? 8:0)+(finalDataset[i][2][j][1]? 8:0))+((-0.3*finalDataset[i][4][j][0])+30)+((-0.3*finalDataset[i][6][j][0])+30)>10){ %>
+                                <td><%= ((finalDataset[i][1][j][0]? 8:0)+(finalDataset[i][1][j][1]? 8:0)+(finalDataset[i][1][j][2]? 8:0))+((finalDataset[i][2][j][0]? 8:0)+(finalDataset[i][2][j][1]? 8:0))+((-0.1*finalDataset[i][4][j][0])+10)+((-0.25*finalDataset[i][5][j][0])+25)+((-0.25*finalDataset[i][6][j][0])+25) %></td>
+                                <% if(((finalDataset[i][1][j][0]? 8:0)+(finalDataset[i][1][j][1]? 8:0)+(finalDataset[i][1][j][2]? 8:0))+((finalDataset[i][2][j][0]? 8:0)+(finalDataset[i][2][j][1]? 8:0))+((-0.1*finalDataset[i][4][j][0])+10)+((-0.25*finalDataset[i][5][j][0])+25)+((-0.25*finalDataset[i][6][j][0])+25)>15){ %>
                                     <td class="table-danger">YES</td>
                                 <% }else{ %>
                                     <td class="table-success">NO</td>
                                 <% } %>
-    
-                                <td><a href="/plot?test=<%= i %>&student=<%= j %>" class="btn btn-secondary" target="_blank">Scatter Plot</a></td>
     
                             </tr>
                             
